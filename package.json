@@ -2,8 +2,20 @@
   "name": "motionbox-apollo",
   "version": "0.0.1",
   "description": "A package that enables pulling contacts from apollo.io rendering personalized videos and updating each contact with Motionbox videos",
-  "main": "index.js",
+  "main": "dist/index.js",
   "author": "Michael Aubry",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "scripts": {
+    "start": "npx tsc && node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^0.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.1",
+    "dotenv": "^10.0.0",
+    "typescript": "^4.5.4"
+  }
 }
