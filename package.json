@@ -1,0 +1,9 @@
+{
+  "name": "motionbox-apollo",
+  "version": "0.0.1",
+  "description": "A package that enables pulling contacts from apollo.io rendering personalized videos and updating each contact with Motionbox videos",
+  "main": "index.js",
+  "author": "Michael Aubry",
+  "license": "MIT",
+  "private": false
+}
