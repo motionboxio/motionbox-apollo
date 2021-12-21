@@ -16,7 +16,7 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
         clearOnComplete: false,
         hideCursor: true,
         format:
-          "{bar} | status: {status} | name: {name} | id: {id} | {percentage}% of {total} | finalVideo: {finalVideo}",
+          "{bar} | status: {status} | name: {name} | id: {id} | {percentage}% of {total} | profile url: {profileUrl}",
       },
       cliProgress.Presets.shades_grey
     );
@@ -29,7 +29,7 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
             id: curr.id,
             name: curr.name,
             status: "🔴",
-            finalVideo: "",
+            profileUrl: `https://app.apollo.io/#/contacts/${curr.id}/custom-fields`,
           }),
           videoId: curr.videoId,
           personId: curr.id,
@@ -73,16 +73,17 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
           if (
             payload.Data &&
             payload.Data.videoId &&
+            payload.Data.progress > 0 &&
             !payload.Data.finalVideo
           ) {
-            map[payload.Data.videoId].bar.update(
-              Number(
-                (
-                  (payload.Data.progress / payload.Data.totalFrames) *
-                  100
-                ).toFixed(2)
-              )
+            const progress = Number(
+              (
+                (payload.Data.progress / payload.Data.totalFrames) *
+                100
+              ).toFixed(2)
             );
+
+            map[payload.Data.videoId].bar.update(progress);
           }
 
           if (payload.Data?.finalVideo) {
