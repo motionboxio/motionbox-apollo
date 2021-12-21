@@ -80,7 +80,12 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
             !payload.Data.finalVideo
           ) {
             videoProgressMap[payload.Data.videoId].bar.update(
-              (payload.Data.progress / payload.Data.totalFrames) * 100
+              Number(
+                (
+                  (payload.Data.progress / payload.Data.totalFrames) *
+                  100
+                ).toFixed(2)
+              )
             );
           }
         } catch (e) {

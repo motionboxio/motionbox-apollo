@@ -7,7 +7,7 @@ interface IUpdate {
 
 export default async ({ id, finalVideo }: IUpdate) => {
   try {
-    const { data } = await axios.post(
+    const { data } = await axios.put(
       `https://api.apollo.io/v1/contacts/${id}`,
       {
         api_key: process.env.APOLLO_API_KEY,
@@ -25,9 +25,9 @@ export default async ({ id, finalVideo }: IUpdate) => {
     return data.contacts;
   } catch (e: any) {
     console.log({
-      error: e.response.data,
+      error: e,
     });
 
-    throw new Error(e.response.data);
+    throw new Error(e);
   }
 };

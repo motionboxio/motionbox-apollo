@@ -15,7 +15,7 @@ app.listen(port, async () => {
   try {
     // Gets people from Apollo
     const contacts = await getPeople();
-    const data = contacts.slice(0, 1).map((contact: any) => ({
+    const data = contacts.slice(0, 6).map((contact: any) => ({
       videoId: uuid(),
       ...contact,
     }));
@@ -39,8 +39,6 @@ app.listen(port, async () => {
               })
           )
         );
-
-        console.info(`${data.length} render requests were sent!`);
       } catch (e) {
         console.log({
           e,
@@ -53,17 +51,29 @@ app.listen(port, async () => {
 
       await Promise.all(
         data.map(async (contact: any) => {
-          const { finalVideo } = renderedVideos.find(
-            ({ videoId }: any) => videoId === contact.videoId
-          );
+          try {
+            const { finalVideo } = renderedVideos.find(
+              ({ videoId }: any) => videoId === contact.videoId
+            );
 
-          // make PUT to Apollo
-          return await updatePerson({
-            id: contact.id,
-            finalVideo,
-          });
+            console.log({
+              id: contact.id,
+              finalVideo,
+            });
+
+            return await updatePerson({
+              id: contact.id,
+              finalVideo,
+            });
+          } catch (e) {
+            console.log({
+              e,
+            });
+          }
         })
       );
+
+      console.log("Done ✅");
     });
 
     console.info(`🚀 Motionbox Apollo is alive and listening on port: ${port}`);

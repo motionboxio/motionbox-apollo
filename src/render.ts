@@ -24,7 +24,7 @@ export default async ({
         ["dea29240-61d4-11ec-be77-954d1c50993a"]: {
           animationData: {
             animationText: {
-              ["Text 01"]: String(contact.name).toUpperCase(),
+              ["Text 01"]: String(contact.first_name).toUpperCase(),
             },
           },
         },
