@@ -33,6 +33,8 @@ export default async ({
       videoId,
       templateId,
       connectionId,
+      targetFormat: "gif",
+      targetResolution: 720,
     },
     headers: {
       "Content-Type": "application/json",
