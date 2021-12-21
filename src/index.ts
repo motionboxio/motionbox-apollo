@@ -56,11 +56,6 @@ app.listen(port, async () => {
               ({ videoId }: any) => videoId === contact.videoId
             );
 
-            console.log({
-              id: contact.id,
-              finalVideo,
-            });
-
             return await updatePerson({
               id: contact.id,
               finalVideo,
@@ -76,7 +71,7 @@ app.listen(port, async () => {
       console.log("Done ✅");
     });
 
-    console.info(`🚀 Motionbox Apollo is alive and listening on port: ${port}`);
+    console.log(`🚀 Motionbox Apollo is alive and listening on port: ${port}`);
   } catch (e) {
     console.log({
       e,

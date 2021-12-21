@@ -12,9 +12,11 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
 
     const multibar = new cliProgress.MultiBar(
       {
+        stopOnComplete: true,
         clearOnComplete: false,
-        hideCursor: true,
-        format: "{bar} | name: {name} | id: {id} | {percentage}% of {total}",
+        hideCursor: false,
+        format:
+          "{bar} | name: {name} | id: {id} | {percentage}% of {total} | finalVideo: {finalVideo}",
       },
       cliProgress.Presets.shades_grey
     );
@@ -72,6 +74,10 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
               finalVideo: payload.Data.finalVideo,
             });
 
+            map[payload.Data.videoId].bar.update(100, {
+              finalVideo: payload.Data.finalVideo,
+            });
+
             if (renderedVideos.length === data.length) {
               eventEmitter.emit("videos_ready", {
                 renderedVideos,
@@ -90,7 +96,10 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
                   (payload.Data.progress / payload.Data.totalFrames) *
                   100
                 ).toFixed(2)
-              )
+              ),
+              {
+                finalVideo: "",
+              }
             );
           }
         } catch (e) {
