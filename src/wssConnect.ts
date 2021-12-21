@@ -1,26 +1,23 @@
 import cliProgress from "cli-progress";
 import { EventEmitter } from "events";
 import WebSocket from "websocket";
+const WebSocketClient = WebSocket.client;
 const SOCKET_URI =
   "wss://c6ifiee5t6.execute-api.us-west-2.amazonaws.com/development";
 
-type Socket = WebSocket.client;
+const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
+  const socket = new WebSocketClient();
+  socket.connect(SOCKET_URI);
+  const multibar = new cliProgress.MultiBar(
+    {
+      clearOnComplete: false,
+      hideCursor: true,
+    },
+    cliProgress.Presets.shades_grey
+  );
 
-const multibar = new cliProgress.MultiBar(
-  {
-    clearOnComplete: false,
-    hideCursor: true,
-  },
-  cliProgress.Presets.shades_grey
-);
-
-const wssConnect = (
-  data: any[],
-  socket: Socket,
-  eventEmitter: EventEmitter
-) => {
   try {
-    const renderedVideos: string[] = [];
+    const renderedVideos: any[] = [];
     const videoProgressMap = data.reduce(
       (acc: any, curr: any) => ({
         ...acc,
@@ -65,11 +62,9 @@ const wssConnect = (
           }
 
           if (payload.Data?.finalVideo) {
-            renderedVideos.push(payload.Data.finalVideo);
-
-            console.log({
-              rvl: renderedVideos.length,
-              dl: data.length,
+            renderedVideos.push({
+              videoId: payload.Data.videoId,
+              finalVideo: payload.Data.finalVideo,
             });
 
             if (renderedVideos.length === data.length) {

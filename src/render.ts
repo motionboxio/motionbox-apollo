@@ -20,7 +20,15 @@ export default async ({
     method: "post",
     url: API_ENDPOINT,
     data: {
-      data: {},
+      data: {
+        ["dea29240-61d4-11ec-be77-954d1c50993a"]: {
+          animationData: {
+            animationText: {
+              ["Text 01"]: String(contact.name).toUpperCase(),
+            },
+          },
+        },
+      },
       token: process.env.MOTIONBOX_API_KEY,
       videoId,
       templateId,

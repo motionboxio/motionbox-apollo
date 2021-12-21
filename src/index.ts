@@ -1,21 +1,15 @@
 import express from "express";
 import { v1 as uuid } from "uuid";
-import WebSocket from "websocket";
 import EventEmitter from "events";
 import wssConnect from "./wssConnect";
 import getPeople from "./apollo/get_people";
+import updatePerson from "./apollo/update_person";
 import render from "./render";
 require("dotenv").config();
 
-const eventEmitter = new EventEmitter();
-const WebSocketClient = WebSocket.client;
-const SOCKET_URI =
-  "wss://c6ifiee5t6.execute-api.us-west-2.amazonaws.com/development";
-
 const app = express();
 const port = 9000;
-const socket = new WebSocketClient();
-socket.connect(SOCKET_URI);
+const eventEmitter = new EventEmitter();
 
 app.listen(port, async () => {
   try {
@@ -27,7 +21,7 @@ app.listen(port, async () => {
     }));
 
     // Establishes connection to render socket gateway
-    wssConnect(data, socket, eventEmitter);
+    wssConnect(data, eventEmitter);
 
     eventEmitter.on("connection_established", async (payload) => {
       const connectionId = payload.connectionId;
@@ -57,11 +51,18 @@ app.listen(port, async () => {
     eventEmitter.on("videos_ready", async (payload) => {
       const renderedVideos = payload.renderedVideos;
 
-      console.log(
-        "Make PUT request with new video urls here, we need customer ids",
-        {
-          renderedVideos,
-        }
+      await Promise.all(
+        data.map(async (contact: any) => {
+          const { finalVideo } = renderedVideos.find(
+            ({ videoId }: any) => videoId === contact.videoId
+          );
+
+          // make PUT to Apollo
+          return await updatePerson({
+            id: contact.id,
+            finalVideo,
+          });
+        })
       );
     });
 
