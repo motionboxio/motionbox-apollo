@@ -12,16 +12,15 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
 
     const multibar = new cliProgress.MultiBar(
       {
-        stopOnComplete: true,
+        stopOnComplete: false,
         clearOnComplete: false,
-        hideCursor: false,
+        hideCursor: true,
         format:
-          "{bar} | name: {name} | id: {id} | {percentage}% of {total} | finalVideo: {finalVideo}",
+          "{bar} | status: {status} | name: {name} | id: {id} | {percentage}% of {total} | finalVideo: {finalVideo}",
       },
       cliProgress.Presets.shades_grey
     );
 
-    const renderedVideos: any[] = [];
     const map = data.reduce(
       (acc: any, curr: any) => ({
         ...acc,
@@ -29,8 +28,11 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
           bar: multibar.create(100, 0, {
             id: curr.id,
             name: curr.name,
+            status: "🔴",
+            finalVideo: "",
           }),
           videoId: curr.videoId,
+          personId: curr.id,
         },
       }),
       {}
@@ -68,23 +70,6 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
             });
           }
 
-          if (payload.Data?.finalVideo) {
-            renderedVideos.push({
-              videoId: payload.Data.videoId,
-              finalVideo: payload.Data.finalVideo,
-            });
-
-            map[payload.Data.videoId].bar.update(100, {
-              finalVideo: payload.Data.finalVideo,
-            });
-
-            if (renderedVideos.length === data.length) {
-              eventEmitter.emit("videos_ready", {
-                renderedVideos,
-              });
-            }
-          }
-
           if (
             payload.Data &&
             payload.Data.videoId &&
@@ -96,11 +81,16 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
                   (payload.Data.progress / payload.Data.totalFrames) *
                   100
                 ).toFixed(2)
-              ),
-              {
-                finalVideo: "",
-              }
+              )
             );
+          }
+
+          if (payload.Data?.finalVideo) {
+            eventEmitter.emit("update_person", {
+              id: map[payload.Data.videoId].personId,
+              bar: map[payload.Data.videoId].bar,
+              finalVideo: payload.Data.finalVideo,
+            });
           }
         } catch (e) {
           console.log("Error parsing message", { e });

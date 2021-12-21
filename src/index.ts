@@ -46,29 +46,26 @@ app.listen(port, async () => {
       }
     });
 
-    eventEmitter.on("videos_ready", async (payload) => {
-      const renderedVideos = payload.renderedVideos;
+    eventEmitter.on("update_person", async (payload) => {
+      const id = payload.id;
+      const bar = payload.bar;
+      const finalVideo = payload.finalVideo;
 
-      await Promise.all(
-        data.map(async (contact: any) => {
-          try {
-            const { finalVideo } = renderedVideos.find(
-              ({ videoId }: any) => videoId === contact.videoId
-            );
+      try {
+        await updatePerson({
+          id,
+          finalVideo,
+        });
 
-            return await updatePerson({
-              id: contact.id,
-              finalVideo,
-            });
-          } catch (e) {
-            console.log({
-              e,
-            });
-          }
-        })
-      );
-
-      console.log("Done ✅");
+        bar.update(100, {
+          status: "🟢",
+          finalVideo,
+        });
+      } catch (e) {
+        console.log({
+          e,
+        });
+      }
     });
 
     console.log(`🚀 Motionbox Apollo is alive and listening on port: ${port}`);
