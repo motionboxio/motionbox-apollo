@@ -18,40 +18,57 @@ const socket = new WebSocketClient();
 socket.connect(SOCKET_URI);
 
 app.listen(port, async () => {
-  // Gets people from Apollo
-  const contacts = await getPeople();
-  const data = contacts.slice(0, 1).map((contact: any) => {
-    const videoId = uuid();
-
-    return {
-      videoId,
+  try {
+    // Gets people from Apollo
+    const contacts = await getPeople();
+    const data = contacts.slice(0, 1).map((contact: any) => ({
+      videoId: uuid(),
       ...contact,
-    };
-  });
+    }));
 
-  console.log({
-    data,
-  });
+    // Establishes connection to render socket gateway
+    wssConnect(data, socket, eventEmitter);
 
-  // Establishes connection to render socket gateway
-  wssConnect(data, socket, eventEmitter);
+    eventEmitter.on("connection_established", async (payload) => {
+      const connectionId = payload.connectionId;
 
-  eventEmitter.on("connection_established", async (payload) => {
-    const connectionId = payload.connectionId;
+      try {
+        // Render a video for each person
+        await Promise.all(
+          data.map(
+            async ({ videoId, ...contact }: any) =>
+              await render({
+                contact,
+                videoId,
+                templateId: "ckxf20b781070klt9tx12okum",
+                connectionId,
+              })
+          )
+        );
 
-    // Render a video for each person
-    await Promise.all(
-      data.map(
-        async ({ videoId, ...contact }: any) =>
-          await render({
-            contact,
-            videoId,
-            templateId: "ckxf20b781070klt9tx12okum",
-            connectionId,
-          })
-      )
-    );
-  });
+        console.info(`${data.length} render requests were sent!`);
+      } catch (e) {
+        console.log({
+          e,
+        });
+      }
+    });
 
-  console.log(`🚀 Motionbox Apollo is alive and listening on port: ${port}`);
+    eventEmitter.on("videos_ready", async (payload) => {
+      const renderedVideos = payload.renderedVideos;
+
+      console.log(
+        "Make PUT request with new video urls here, we need customer ids",
+        {
+          renderedVideos,
+        }
+      );
+    });
+
+    console.info(`🚀 Motionbox Apollo is alive and listening on port: ${port}`);
+  } catch (e) {
+    console.log({
+      e,
+    });
+  }
 });
