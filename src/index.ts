@@ -24,9 +24,9 @@ app.listen(port, async () => {
     wssConnect(data, eventEmitter);
 
     eventEmitter.on("connection_established", async (payload) => {
-      const connectionId = payload.connectionId;
-
       try {
+        const connectionId = payload.connectionId;
+
         // Render a video for each person
         await Promise.all(
           data.map(

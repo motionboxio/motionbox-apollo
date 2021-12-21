@@ -1,28 +1,33 @@
-import cliProgress from "cli-progress";
 import { EventEmitter } from "events";
 import WebSocket from "websocket";
+import cliProgress from "cli-progress";
 const WebSocketClient = WebSocket.client;
 const SOCKET_URI =
   "wss://c6ifiee5t6.execute-api.us-west-2.amazonaws.com/development";
 
 const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
-  const socket = new WebSocketClient();
-  socket.connect(SOCKET_URI);
-  const multibar = new cliProgress.MultiBar(
-    {
-      clearOnComplete: false,
-      hideCursor: true,
-    },
-    cliProgress.Presets.shades_grey
-  );
-
   try {
+    const socket = new WebSocketClient();
+    socket.connect(SOCKET_URI);
+
+    const multibar = new cliProgress.MultiBar(
+      {
+        clearOnComplete: false,
+        hideCursor: true,
+        format: "{bar} | name: {name} | id: {id} | {percentage}% of {total}",
+      },
+      cliProgress.Presets.shades_grey
+    );
+
     const renderedVideos: any[] = [];
-    const videoProgressMap = data.reduce(
+    const map = data.reduce(
       (acc: any, curr: any) => ({
         ...acc,
         [curr.videoId]: {
-          bar: multibar.create(100, 0),
+          bar: multibar.create(100, 0, {
+            id: curr.id,
+            name: curr.name,
+          }),
           videoId: curr.videoId,
         },
       }),
@@ -79,7 +84,7 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
             payload.Data.videoId &&
             !payload.Data.finalVideo
           ) {
-            videoProgressMap[payload.Data.videoId].bar.update(
+            map[payload.Data.videoId].bar.update(
               Number(
                 (
                   (payload.Data.progress / payload.Data.totalFrames) *
