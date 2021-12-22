@@ -15,7 +15,7 @@ app.listen(port, async () => {
   try {
     // Gets people from Apollo
     const contacts = await getPeople();
-    const data = contacts.slice(0, 10).map((contact: any) => ({
+    const data = contacts.map((contact: any) => ({
       videoId: uuid(),
       ...contact,
     }));

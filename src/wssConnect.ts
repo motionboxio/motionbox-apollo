@@ -12,11 +12,12 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
 
     const multibar = new cliProgress.MultiBar(
       {
+        autopadding: true,
         stopOnComplete: false,
         clearOnComplete: false,
         hideCursor: true,
         format:
-          "{bar} | status: {status} | name: {name} | id: {id} | {percentage}% of {total} | profile url: {profileUrl}",
+          "{bar} | {percentage}% | status: {status} | name: {name} | profile url: {profileUrl}",
       },
       cliProgress.Presets.shades_grey
     );
