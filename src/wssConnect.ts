@@ -17,7 +17,7 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
         clearOnComplete: false,
         hideCursor: true,
         format:
-          "{bar} | {percentage}% | status: {status} | name: {name} | profile url: {profileUrl}",
+          "{bar} | {percentage}% | status: {status} | error: {error} | name: {name} | profile url: {profileUrl}",
       },
       cliProgress.Presets.shades_grey
     );
@@ -29,6 +29,7 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
           bar: multibar.create(100, 0, {
             id: curr.id,
             name: curr.name,
+            error: "none",
             status: "🔴",
             profileUrl: `https://app.apollo.io/#/contacts/${curr.id}/custom-fields`,
           }),
@@ -92,6 +93,12 @@ const wssConnect = (data: any[], eventEmitter: EventEmitter) => {
               id: map[payload.Data.videoId].personId,
               bar: map[payload.Data.videoId].bar,
               finalVideo: payload.Data.finalVideo,
+            });
+          }
+
+          if (payload.Data?.errors) {
+            map[payload.Data.videoId].bar.update(0, {
+              error: `🔴 ${payload.Data?.errors}`,
             });
           }
         } catch (e) {
